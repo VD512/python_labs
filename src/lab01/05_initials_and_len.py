@@ -1,4 +1,5 @@
 name=input('ФИО:')
-n1,n2,n3=name.split()
-print(f'Инициалы: {n1[0]+n2[0]+n3[0]}.')
-print(f'Длина (символов): {len(name)}')
+fio=name.split()
+initials=[x[0].upper() for x in fio]
+print(f'Инициалы: {''.join(initials)}.')
+print(f'Длина (символов): {len(name.replace(' ',''))+2}')
