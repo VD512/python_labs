@@ -20,9 +20,4 @@ def flatten(mat: list[list | tuple]) -> list:
             return TypeError
         for y in x:
             res.append(y)
-    return res
-            
-
-        
-nums=[[1, 2], "ab"]
-print(flatten(nums))
+    return res            
