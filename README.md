@@ -60,3 +60,39 @@ for x in range(n):
 print(k_t, k_f)
 ```
 ![Картинка 6](./images/lab01/06_n_people.png)
+
+## Лабораторная работа 2
+### Задание 1
+```python
+def min_max(nums: list[float | int]) -> tuple[float | int, float | int]:
+    if len(nums)==0:
+        return ValueError
+    mx=-float('inf')
+    mn=float('inf')
+    for x in nums:
+        if x>mx:
+            mx=x
+        if x<mn:
+            mn=x
+    return(mn,mx)
+```
+![Картинка 1](./images/lab02/min_max.png)
+
+```python
+def unique_sorted(nums: list[float | int]) -> list[float | int]:
+    return sorted(set(nums))
+```
+![Картинка 2](./images/lab02/unique_sorted.png)
+
+```python
+def flatten(mat: list[list | tuple]) -> list:
+    res=[]
+    for x in mat:
+        if not isinstance(x,(list,tuple)):
+            return TypeError
+        for y in x:
+            res.append(y)
+    return res
+```
+![Картинка 3](./images/lab02/flatten.png)
+
