@@ -162,7 +162,7 @@ def col_sums(mat: list[list[float | int]]) -> list[float]:
 '''форматирует данные студента из кортежа в строку'''
 def format_record(rec: tuple[str, str, float]) -> str:
     full_name=rec[0].strip().split()
-    '''проверяем наличие 2 или 3 слов в имени и форматирую , в иных случаях - ошибка'''
+    '''проверяем наличие 2 или 3 слов в имени и придаем ему нужный формат'''
     if len(full_name)==3: 
         initials=f'{full_name[0][0].upper()}{full_name[0][1:]} {full_name[1][0].upper()}.{full_name[2][0].upper()}.'
     elif len(full_name)==2:
