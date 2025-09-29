@@ -64,7 +64,9 @@ print(k_t, k_f)
 ## Лабораторная работа 2
 ### Задание 1
 ```python
+'''возвращает кортеж с минимальным и максимальным значениями списка'''
 def min_max(nums: list[float | int]) -> tuple[float | int, float | int]:
+    '''проверяем список на наличие элементов'''
     if len(nums)==0:
         return ValueError
     mx=-float('inf')
@@ -79,35 +81,43 @@ def min_max(nums: list[float | int]) -> tuple[float | int, float | int]:
 ![Картинка 1](./images/lab02/min_max.png)
 
 ```python
+'''возвращает отсортированный список уникальных значений'''
 def unique_sorted(nums: list[float | int]) -> list[float | int]:
     return sorted(set(nums))
 ```
 ![Картинка 2](./images/lab02/unique_sorted.png)
 
 ```python
+'''расплющивает список списков/кортежей в один список по строкам'''
 def flatten(mat: list[list | tuple]) -> list:
     res=[]
     for x in mat:
+        '''проверяем тип элементов матрицы, если не список или кортеж - ошибка '''
         if not isinstance(x,(list,tuple)):
             return TypeError
         for y in x:
             res.append(y)
-    return res
+    return res        
 ```
 ![Картинка 3](./images/lab02/flatten.png)
 
 ## Задание 2
 
 ```python
+'''меняет строки и столбцы местами'''
 def transpose(mat: list[list[float | int]]) -> list[list]:
+    '''если матрица нулевая - остается без изменений'''
     if len(mat)==0:
         return mat
     len_line=len(mat[0])
     len_column=len(mat)
+    '''проверяю матрицу на прямоугольность'''
     for line in mat:
         if len(line)!=len_line:
             return ValueError
+    '''создаю новую матрицу, меняя количество строк и столбцов'''
     new_mat=[[0 for x in range(len_column)] for y in range(len_line)]
+    '''добавляю в новую матрицу значения оригинальной'''
     for x in range(len_column):
         for y in range(len_line):
             new_mat[y][x]=mat[x][y]
@@ -116,9 +126,11 @@ def transpose(mat: list[list[float | int]]) -> list[list]:
 ![Картинка 4](./images/lab02/transpose.png)
 
 ```python
+'''считает сумму по каждой строке'''
 def row_sums(mat: list[list[float | int]]) -> list[float]:
     same_len=len(mat[0])
     sum_mat=[]
+    '''проверяем матрицу на прямоугольность и записываю суммы строк в отдельный список'''
     for line in mat:
         if len(line)!=same_len:
             return ValueError
@@ -128,15 +140,48 @@ def row_sums(mat: list[list[float | int]]) -> list[float]:
 ![Картинка 5](./images/lab02/row_sums.png)
 
 ```python
+'''считает сумму по каждому столбцу'''
 def col_sums(mat: list[list[float | int]]) -> list[float]:
     same_len=len(mat[0])
     sum_mat=[0]*same_len
+    '''проверяем матрицу на прямоугольность'''
     for line in mat:
         if len(line)!=same_len:
             return ValueError
+    '''суммирую элементы по столбцам и записываю суммы в отдельный список'''
     for x in range(same_len):
         for y in range(len(mat)):
             sum_mat[x]+=mat[y][x]
     return sum_mat
 ```
 ![Картинка 6](./images/lab02/col_sums.png)
+
+## Задание 3
+
+```python
+'''форматирует данные студента из кортежа в строку'''
+def format_record(rec: tuple[str, str, float]) -> str:
+    full_name=rec[0].strip().split()
+    '''проверяем наличие 2 или 3 слов в имени и форматирую , в иных случаях - ошибка'''
+    if len(full_name)==3: 
+        initials=f'{full_name[0][0].upper()}{full_name[0][1:]} {full_name[1][0].upper()}.{full_name[2][0].upper()}.'
+    elif len(full_name)==2:
+        initials=f'{full_name[0][0].upper()}{full_name[0][1:]} {full_name[1][0].upper()}.'
+    else:
+        return ValueError
+    
+    group=rec[1].strip()
+    '''проверяем наличие группы, при отсутствии - ошибка'''
+    if len(group)==0:
+        return ValueError
+
+    gpa=rec[2]
+    '''проверяем, принадлежит ли GPA типу float, если нет - ошибка'''
+    if not isinstance(gpa,float):
+        return TypeError
+    
+    '''записываем все отформатированные данные в одну строку'''
+    result=f'{initials}, гр. {group}, GPA {gpa:.2f}'
+    return result
+```
+![Картинка 7](./images/lab02/format_record.png)
