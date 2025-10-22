@@ -101,7 +101,7 @@ def flatten(mat: list[list | tuple]) -> list:
 ```
 ![Картинка 3](./images/lab02/flatten.png)
 
-## Задание 2
+### Задание 2
 
 ```python
 '''меняет строки и столбцы местами'''
@@ -156,7 +156,7 @@ def col_sums(mat: list[list[float | int]]) -> list[float]:
 ```
 ![Картинка 6](./images/lab02/col_sums.png)
 
-## Задание 3
+### Задание 3
 
 ```python
 '''форматирует данные студента из кортежа в строку'''
@@ -197,3 +197,103 @@ def format_record(rec: tuple[str, str, float]) -> str:
 
 ```
 ![Картинка 7](./images/lab02/format_record.png)
+
+## Лабораторная работа 3
+### Задание А
+
+```python
+'''функция приводит строки в "нормальный" вид'''
+def normalize(text: str, *, casefold: bool = True, yo2e: bool = True) -> str:
+    if casefold:
+        '''приводим к нижнему регистру'''
+        text=text.casefold()
+    if yo2e:
+        '''заменяем ё на е'''
+        text=text.replace('ё','е').replace('Ё','Е')
+    '''убираем управляющие символы'''
+    text=text.replace('/t',' ').replace('/r',' ').replace('/n',' ')
+    '''убираем лишние пробелы'''
+    text=' '.join(text.split())
+    return (text)
+```
+![Картинка 1](./images/lab03/normalize.png)
+
+```python
+from re import *
+'''функция разбивает строчки на "слова"'''
+def tokenize(text: str) -> list[str]:
+    '''шаблон для нужных нам подстрок'''
+    pattern=r'\w+(?:-\w+)*'
+    rez=findall(pattern,text)
+    return rez
+```
+![Картинка 2](./images/lab03/tokenize.png)
+
+```python
+'''функция создает словарь частот'''
+def count_freq(tokens: list[str]) -> dict[str, int]:
+    rez={}
+    for words in tokens:
+        rez[words]=rez.get(words,0)+1
+    return rez
+```
+![Картинка 3](./images/lab03/count_freq.png)
+
+```python
+'''функция создает топ n частот'''
+def top_n(freq: dict[str, int], n: int = 5) -> list[tuple[str, int]]:
+    dict_items=list(freq.items())
+    '''создаем список сортированный по второму значению'''
+    sorted_items=sorted([[-items[1],items[0]]for items in dict_items])
+    rez=[]
+    '''возвращаем значения на свое место'''
+    for items in sorted_items:
+        rez.append(((items[1],-items[0])))
+    return rez[:n]
+
+```
+![Картинка 4](./images/lab03/top_n.png)
+
+### Задание В
+
+```python
+import sys
+
+'''импортируем созданные ранее функции'''
+from src.lib.text import normalize, tokenize, count_freq, top_n
+
+'''функция считает слова, их частоты и выводит топ'''
+def top_of_words(*, table: bool = True):
+    '''читаем текст до EOF'''
+    text = sys.stdin.read()
+    '''проверяем текст на пустоту'''
+    if text=='':
+        return 'пустой текст'
+    '''приводим текст в нормальный вид, разбиваем на слова и считаем их частоты'''
+    normalized_text = normalize(text)
+    tokens = tokenize(normalized_text)
+    word_counts = count_freq(tokens)
+    top = top_n(word_counts,5)
+    print(f"Всего слов: {len(tokens)}")
+    print(f"Уникальных слов: {len(set(tokens))}")
+    '''выводим топ слов красивой табличкой'''
+    if table:
+        max_len=max(len(x) for x,y in top)
+        if max_len<5:
+            max_len=5
+        first_line='слово'+' '*(max_len-5)+'| частота'
+        print(first_line)
+        print('-'*len(first_line))
+        for word, count in top:
+            print(f'{word}'+' '*(max_len-len(word))+f'| {count}')
+    else:
+        print("Топ-5:")
+        for word, count in top:
+            print(f"{word}:{count}")
+    return None
+
+top_of_words()
+
+```
+![Картинка 5](./images/lab03/top_of_words+table.png)
+
