@@ -30,5 +30,5 @@ def top_of_words(*, table: bool = True):
         print("Топ-5:")
         for word, count in top:
             print(f"{word}:{count}")
-    return None
+
 top_of_words()

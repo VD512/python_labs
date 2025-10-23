@@ -1,4 +1,4 @@
-from re import *
+from re import findall
 '''функция приводит строки в "нормальный" вид'''
 def normalize(text: str, *, casefold: bool = True, yo2e: bool = True) -> str:
     if casefold:
@@ -8,7 +8,7 @@ def normalize(text: str, *, casefold: bool = True, yo2e: bool = True) -> str:
         '''заменяем ё на е'''
         text=text.replace('ё','е').replace('Ё','Е')
     '''убираем управляющие символы'''
-    text=text.replace('/t',' ').replace('/r',' ').replace('/n',' ')
+    text=text.replace('\t',' ').replace('\r',' ').replace('\n',' ')
     '''убираем лишние пробелы'''
     text=' '.join(text.split())
     return (text)
