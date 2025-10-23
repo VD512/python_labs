@@ -258,7 +258,8 @@ def top_n(freq: dict[str, int], n: int = 5) -> list[tuple[str, int]]:
 
 ```python
 import sys
-
+'''добавляем нужный нам путь в список путей, где Python ищет модули при импорте'''
+sys.path.append('C:/Users/dasha/Desktop/python_labs/src')
 '''импортируем созданные ранее функции'''
 from src.lib.text import normalize, tokenize, count_freq, top_n
 

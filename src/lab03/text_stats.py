@@ -1,8 +1,6 @@
 import sys
-
-'''импортируем созданные ранее функции'''
-from src.lib.text import normalize, tokenize, count_freq, top_n
-
+sys.path.append('C:/Users/dasha/Desktop/python_labs/src')
+from lib.text import normalize, tokenize, count_freq, top_n
 
 '''функция считает слова, их частоты и выводит топ'''
 def top_of_words(*, table: bool = True):
@@ -33,5 +31,4 @@ def top_of_words(*, table: bool = True):
         for word, count in top:
             print(f"{word}:{count}")
     return None
-
 top_of_words()
