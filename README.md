@@ -297,3 +297,94 @@ top_of_words()
 ```
 ![Картинка 5](./images/lab03/top_of_words+table.png)
 
+## Лабораторная работа 4
+
+### Задание А
+
+``` python
+from pathlib import Path
+def read_text(path: str | Path, encoding: str = "utf-8") -> str:
+    '''
+    Функция читает файл в указанной кодировке и возвращает его одной строкой('Первая строка\nВторая строка').
+    Чтобы поменять кодировку надо указать ее в параметрах функции, например: encoding="cp1251".
+    Если файл не найден - поднимается FileNotFoundError.
+    Если кодировка не подходит - поднимается UnicodeDecodeError.
+    Если файл пустой - по умолчанию возаращается пустая строка.
+    '''
+    p=Path(path) #превращает входимый объект в path-объект
+    return p.read_text(encoding=encoding) #читает текст в указаной кодировке
+```
+![Картинка 1](./images/lab04/demo_test_read.png)
+
+``` python
+import csv
+from pathlib import Path
+from typing import Iterable, Sequence
+def write_csv(rows: list[tuple | list], path: str | Path, header: tuple[str, ...] | None = None) -> None:
+    '''
+    Функция создает/перезаписывает CSV с разделителем ','.
+    Если передан header(заголовок), он записывается первой строкой.
+    Если строки в rows имеют разную длину, поднимается ValueError.
+    При пустом rows и header=None создается пустой файл.
+    При пустом rows и непустым header файл содержит только заголовок.
+    '''
+    p=Path(path)
+    rows=list(rows)
+    with p.open('w',newline='', encoding='utf-8') as f:
+        w=csv.writer(f) #команда-помощник для записи csv файлов
+        if header is not None:
+            w.writerow(header) #запись заголовка
+        if rows:
+            if not all(len(x)==len(rows[0]) for x in rows): #проверка строчек на одинаковую длину
+                raise ValueError
+            for r in rows:
+                    w.writerow(r) #запись строчек
+```
+
+![Картинка 2](./images/lab04/demo_test_write.png)
+
+``` python
+def ensure_parent_dir(path: str | Path) -> None:
+    '''функция находит родительскую директорию файла и при ее отсутствии добавляет'''
+    p = Path(path)  
+    if p.parent and not p.parent.exists(): 
+        p.parent.mkdir(parents=True, exist_ok=True)
+```
+### Задание В
+
+``` python
+import sys
+from io_txt_csv import read_text, write_csv #импортируем созданные ранее функции
+sys.path.append('C:/Users/dasha/Desktop/python_labs/src')
+from lib.text import normalize, tokenize, count_freq, top_n
+
+
+try: #проверяем наличие файла
+    text = read_text('data/lab04/input.txt')#считываем текст из файла 
+except FileNotFoundError as e: #при его отсутсвии прерываем выполнение и выводим ошибку
+    print(f"Ошибка: {e}") 
+    sys.exit(1)
+
+#делим текст на токены, составляем словарь частотт и выстраиваем топ
+tokens = tokenize(normalize(text))
+word_counts = count_freq(tokens)
+top_5=top_n(word_counts,5) #топ-5 для вывода
+top_list=top_n(word_counts, len(word_counts.keys())) #весь топ для записи в csv-файл
+write_csv(top_list,'data/lab04/report.csv', ('word','count')) #записываем в csv-файл с заголовками word и count
+
+#выводим количество слов в общем и уникальных
+print(f"Всего слов: {len(tokens)}") 
+print(f"Уникальных слов: {len(set(tokens))}")
+#выводип топ-5 красивой табличкой
+max_len=max(len(x) for x,y in top_5)
+if max_len<5:
+    max_len=5
+first_line='слово'+' '*(max_len-5)+'| частота'
+print(first_line)
+print('-'*len(first_line))
+for word, count in top_5:
+    print(f'{word}'+' '*(max_len-len(word))+f'| {count}')
+
+```
+![Картинка 3](./images/lab04/text_report.png)
+![Картинка 4](./images/lab04/error_exit.png)
