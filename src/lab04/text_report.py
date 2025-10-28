@@ -5,7 +5,7 @@ from lib.text import normalize, tokenize, count_freq, top_n
 
 
 try:
-    text = read_text('data/lab04/not_input.txt')
+    text = read_text('data/lab04/input.txt')
 except FileNotFoundError as e:
     print(f"Ошибка: {e}") 
     sys.exit(1)
