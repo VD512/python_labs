@@ -388,3 +388,105 @@ for word, count in top_5:
 ```
 ![Картинка 3](./images/lab04/text_report.png)
 ![Картинка 4](./images/lab04/error_exit.png)
+
+## Лабораторная работа 5
+
+### Задание А
+
+``` python 
+from pathlib import Path
+import json,csv,sys
+sys.path.append('C:/Users/dasha/Desktop/python_labs/src')
+from lab04.io_txt_csv import ensure_parent_dir
+
+def json_to_csv(json_path: str, csv_path: str) -> None:
+    j_path=Path(json_path)
+    if not j_path.exists(): #проверяем наличие файла
+        raise FileNotFoundError
+    with open(j_path,'r',encoding='utf-8') as j_file:
+        try:
+            j_data=json.load(j_file)
+        except json.JSONDecodeError: #проверяем синтаксис
+            raise ValueError("Пустой JSON или неподдерживаемая структура")
+        except not j_data: #проверяем файл на пустоту
+            raise ValueError('Файл JSON пуст')
+        except isinstance(j_data,list):
+            raise ValueError('Файл не является СПИСКОМ словарей')
+        except all(isinstance(row,dict) for row in j_data):
+            raise ValueError('Файл не является списком СЛОВАРЕЙ')
+    c_path=Path(csv_path)
+    ensure_parent_dir(c_path)
+    with open(c_path,'w',encoding='utf-8', newline='') as c_file:
+        c_writer=csv.DictWriter(c_file,fieldnames=j_data[0].keys())
+        c_writer.writeheader()
+        c_writer.writerows(j_data)
+
+
+def csv_to_json(csv_path: str, json_path: str) -> None:
+    c_path=Path(csv_path)
+    if not c_path.exists():
+        raise FileNotFoundError
+    if c_path.suffix != '.csv':
+            raise ValueError("Неверный тип файла")
+    with open(c_path,'r',encoding='utf-8') as c_file:
+        c_data=csv.DictReader(c_file)
+        if not c_data.fieldnames:
+            raise ValueError('Файл пустой или в нем нет заголовков')
+        c_rows=list(c_data)
+        if not c_rows:
+            raise ValueError('В файле есть заголовки, но нет данных')
+    j_path=Path(json_path)
+    ensure_parent_dir(j_path)
+    with open(j_path,'w', encoding='utf-8') as j_file:
+        json.dump(c_rows,j_file,ensure_ascii=False,indent=2)
+
+```
+![Картинка 1](./images/lab05/json_csv.png)
+![Картинка 2](./images/lab05/people_json_csv.png)
+![Картинка 3](./images/lab05/students_recipes_json_csv.png)
+
+### Задание В
+
+``` python
+from openpyxl import Workbook
+from openpyxl.utils import get_column_letter
+import csv,sys
+from pathlib import Path
+sys.path.append('C:/Users/dasha/Desktop/python_labs/src')
+from lab04.io_txt_csv import ensure_parent_dir
+
+def csv_to_xlsx(csv_path: str, xlsx_path: str) -> None:
+
+    c_path=Path(csv_path)
+    if not c_path.exists():
+        raise FileNotFoundError('Файл не найден')
+    if c_path.suffix != '.csv':
+            raise ValueError("Неверный тип файла")
+    
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Sheet1"
+
+    with open(c_path,'r',encoding='utf-8') as c_file:
+        c_data=csv.DictReader(c_file)
+        if not c_data.fieldnames:
+            raise ValueError('Файл пустой или в нем нет заголовков')     
+        ws.append(c_data.fieldnames)
+        for row in c_data:
+            ws.append([row[field] for field in c_data.fieldnames])
+
+    x_path=Path(xlsx_path)
+    ensure_parent_dir(x_path)
+    for column in ws.columns:
+            max_length=8
+            column_letter = get_column_letter(column[0].column)
+            for cell in column:
+                max_length = max(len(str(cell.value)), max_length)
+            ws.column_dimensions[column_letter].width = max_length
+    wb.save(x_path)
+
+```
+
+![Картинка 4](./images/lab05/csv_xslx.png)
+![Картинка 5](./images/lab05/cities_csv_xslx.png)
+![Картинка 6](./images/lab05/weather_csv_xslx.png)

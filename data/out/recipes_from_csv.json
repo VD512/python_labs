@@ -1,0 +1,27 @@
+[
+  {
+    "dish": "Borscht",
+    "cooking_time": "120",
+    "cuisine": "Russian"
+  },
+  {
+    "dish": "Paella",
+    "cooking_time": "90",
+    "cuisine": "Spanish"
+  },
+  {
+    "dish": "Sushi",
+    "cooking_time": "60",
+    "cuisine": "Japanese"
+  },
+  {
+    "dish": "Pasta",
+    "cooking_time": "30",
+    "cuisine": "Italian"
+  },
+  {
+    "dish": "Tacos",
+    "cooking_time": "45",
+    "cuisine": "Mexican"
+  }
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "student": "Emma Wilson",
+    "grade": 85,
+    "subject": "Mathematics"
+  },
+  {
+    "student": "James Brown",
+    "grade": 92,
+    "subject": "Physics"
+  },
+  {
+    "student": "Sophia Chen",
+    "grade": 78,
+    "subject": "Chemistry"
+  },
+  {
+    "student": "Michael Davis",
+    "grade": 88,
+    "subject": "Mathematics"
+  },
+  {
+    "student": "Olivia Martinez",
+    "grade": 95,
+    "subject": "Biology"
+  }
+]
