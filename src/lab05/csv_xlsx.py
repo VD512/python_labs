@@ -6,7 +6,7 @@ sys.path.append('C:/Users/dasha/Desktop/python_labs/src')
 from lab04.io_txt_csv import ensure_parent_dir
 
 def csv_to_xlsx(csv_path: str, xlsx_path: str) -> None:
-
+    '''Функция конвертирует CSV-файл в XSLX-файл, проверяя синтаксис и корректность входного и создавая директорию(если надо) выходного'''
     c_path=Path(csv_path)
     if not c_path.exists():
         raise FileNotFoundError('Файл не найден')

@@ -4,22 +4,31 @@ sys.path.append('C:/Users/dasha/Desktop/python_labs/src')
 from lab04.io_txt_csv import ensure_parent_dir
 
 def json_to_csv(json_path: str, csv_path: str) -> None:
+    '''Функция конвертирует JSON-файл в CSV-файл, проверяя синтаксис и корректность входного и создавая директорию(если надо) выходного'''
     j_path=Path(json_path)
+
     if not j_path.exists(): 
-        raise FileNotFoundError
+        raise FileNotFoundError('Файл не найден')
+    
     with open(j_path,'r',encoding='utf-8') as j_file:
+
         try:
             j_data=json.load(j_file)
         except json.JSONDecodeError:
             raise ValueError("Пустой JSON или неподдерживаемая структура")
-        except not j_data: 
+        
+        if not j_data: 
             raise ValueError('Файл JSON пуст')
-        except isinstance(j_data,list):
+        
+        if not isinstance(j_data,list):
             raise ValueError('Файл не является СПИСКОМ словарей')
-        except all(isinstance(row,dict) for row in j_data):
+        
+        if not all(isinstance(row,dict) for row in j_data):
             raise ValueError('Файл не является списком СЛОВАРЕЙ')
+        
     c_path=Path(csv_path)
     ensure_parent_dir(c_path)
+
     with open(c_path,'w',encoding='utf-8', newline='') as c_file:
         c_writer=csv.DictWriter(c_file,fieldnames=j_data[0].keys())
         c_writer.writeheader()
@@ -27,11 +36,14 @@ def json_to_csv(json_path: str, csv_path: str) -> None:
 
 
 def csv_to_json(csv_path: str, json_path: str) -> None:
+    '''Функция конвертирует CSV-файл в JSON-файл, проверяя синтаксис и корректность входного и создавая директорию(если надо) выходного'''
     c_path=Path(csv_path)
+
     if not c_path.exists():
-        raise FileNotFoundError
+        raise FileNotFoundError('Файл не найден')
     if c_path.suffix != '.csv':
             raise ValueError("Неверный тип файла")
+    
     with open(c_path,'r',encoding='utf-8') as c_file:
         c_data=csv.DictReader(c_file)
         if not c_data.fieldnames:
@@ -39,6 +51,7 @@ def csv_to_json(csv_path: str, json_path: str) -> None:
         c_rows=list(c_data)
         if not c_rows:
             raise ValueError('В файле есть заголовки, но нет данных')
+        
     j_path=Path(json_path)
     ensure_parent_dir(j_path)
     with open(j_path,'w', encoding='utf-8') as j_file:
