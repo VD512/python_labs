@@ -507,3 +507,107 @@ def csv_to_xlsx(csv_path: str, xlsx_path: str) -> None:
 ![Картинка 4](./images/lab05/csv_xslx.png)
 ![Картинка 5](./images/lab05/cities_csv_xslx.png)
 ![Картинка 6](./images/lab05/weather_csv_xslx.png)
+
+## Лабораторная работа 6
+
+### Задание 1
+
+``` python
+import argparse #библиотека для обработки аргументов командной строки
+from pathlib import Path
+from src.lib.text import tokenize, count_freq, top_n
+
+def main():
+    parser = argparse.ArgumentParser(description="CLI‑утилиты лабораторной №6") #создаем главного парсера - анализатора аргументов командной строки
+    subparsers = parser.add_subparsers(dest="command") #создаем механизм подкоманд, команды сохраняются в args.command
+
+    cat_parser = subparsers.add_parser("cat", help="Вывести содержимое файла") #создаем парсер для подкоманды cat
+    cat_parser.add_argument("--input", required=True) #добавляем обязательный аргумент input
+    cat_parser.add_argument("-n", action="store_true", help="Нумеровать строки") #добавляем флаг n со значениями True/False
+
+    stats_parser = subparsers.add_parser("stats", help="Частоты слов") #создаем парсер для подкоманды stats
+    stats_parser.add_argument("--input", required=True) #добавляем обязательный аргумент input
+    stats_parser.add_argument("--top", type=int, default=5) #добавляем числовой аргумент top со значением по умолчанию 5
+
+    args = parser.parse_args() #парсинг аргументов командной строки и сохранение в объект args
+
+    file_path=Path(args.input)
+    if not file_path.exists(): #проверяем файл на существование
+        parser.error('Файл не найден')
+
+    if args.command == "cat": #обработка подкоманды cat
+        with open(file_path,'r',encoding='utf-8') as f:
+            number=0
+            for lines in f:
+                line=lines.rstrip('\n') #удаляем символ новой строки справа
+                if args.n: #вывод строк с нумерацией при указании флага n
+                    number+=1
+                    print(f'{number}: {line}')
+                else: #вывод строк без нумерации и флага
+                    print(line)
+    elif args.command == "stats": #обработка подкоманды stats
+        if args.top <= 0: #проверка на положительность аргумента top
+                parser.error("аргумент top - положительное число")
+        with open(file_path,'r',encoding='utf-8') as f:
+            lines=[i for i in f]
+            if not lines: #проверка на пустоту файла
+                parser.error("Файл пустой")
+            tokens=tokenize(''.join(lines))
+            frequency=count_freq(tokens)
+            top_of_words=top_n(frequency,n=args.top)
+
+            for word,count in top_of_words: #вывод топа слов
+                print(f'{word}: {count}')
+
+if __name__ == "__main__": #проверка для запуска файла напрямую или импортирования как модуль
+    main()
+
+```
+![Картинка 1](./images/lab06/cat.png)
+![Картинка 2](./images/lab06/stats.png)
+![Картинка 3](./images/lab06/cli_text%20help.png)
+
+### Задание 2
+
+``` python
+import argparse #библиотека для обработки аргументов командной строки
+from src.lab05.json_csv import json_to_csv, csv_to_json
+from src.lab05.csv_xlsx import csv_to_xlsx
+
+def main():
+    parser = argparse.ArgumentParser(description="Конвертеры данных") #создаем главного парсера - анализатора аргументов командной строки
+    sub = parser.add_subparsers(dest="cmd") #создаем механизм подкоманд, команды сохраняются в args.cmd
+
+    p1 = sub.add_parser("json2csv", help='Конвертация из JSON в CSV') #создаем парсер для подкоманды json2csv
+    p1.add_argument("--in", dest="input", required=True) #добавляем обязательный аргумент input
+    p1.add_argument("--out", dest="output", required=True) #добавляем обязательный аргумент output
+
+    p2 = sub.add_parser("csv2json", help='Конвертация из CSV в JSON') #создаем парсер для подкоманды csv2json
+    p2.add_argument("--in", dest="input", required=True) #добавляем обязательный аргумент input
+    p2.add_argument("--out", dest="output", required=True) #добавляем обязательный аргумент output
+
+    p3 = sub.add_parser("csv2xlsx", help='Конвертация из CSV в XSLX') #создаем парсер для подкоманды csv2xslx
+    p3.add_argument("--in", dest="input", required=True) #добавляем обязательный аргумент input
+    p3.add_argument("--out", dest="output", required=True) #добавляем обязательный аргумент output
+
+    args = parser.parse_args() #парсинг аргументов командной строки и сохранение в объект args
+    if args.cmd == "json2csv": #обработка подкоманды json2csv
+        json_to_csv(json_path=args.input, csv_path=args.output)
+        
+    elif args.cmd == "csv2json": #обработка подкоманды csv2json
+        csv_to_json(csv_path=args.input, json_path=args.output)
+
+    elif args.cmd == "csv2xlsx": #обработка подкоманды csv2xlsx
+        csv_to_xlsx(csv_path=args.input, xlsx_path=args.output)
+
+
+if __name__ == "__main__": #проверка для запуска файла напрямую или импортирования как модуль
+    main()
+
+
+```
+![Картинка 4](./images/lab06/json2csv.png)
+![Картинка 5](./images/lab06/csv2json.png)
+![Картинка 6](./images/lab06/csv2xslx.png)
+![Картинка 7](./images/lab06/people_xslx.png)
+![Картинка 8](./images/lab06/cli_convert%20help.png)
