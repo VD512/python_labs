@@ -1,7 +1,7 @@
-price,discount,vat=map(float,input().split())
-base=price*(1-discount/100)
-vat_amount=base*(vat/100)
-total=base+vat_amount
-print(f'База после скидки: {base:.2f} P')
-print(f'НДС: {vat_amount:.2f} P')
-print(f'Итого к оплате: {total:.2f} P')
+price, discount, vat = map(float, input().split())
+base = price * (1 - discount / 100)
+vat_amount = base * (vat / 100)
+total = base + vat_amount
+print(f"База после скидки: {base:.2f} P")
+print(f"НДС: {vat_amount:.2f} P")
+print(f"Итого к оплате: {total:.2f} P")

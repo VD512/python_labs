@@ -1,0 +1,30 @@
+[project]
+name = "python_labs"
+version = "1.0.0"
+
+[tool.black]
+line-length = 88
+target-version = ["py312"]
+exclude = '''
+/(
+    data
+    |images
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"    
+extend-exclude = ["data", "images"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = ["ES01"]
+
+[build-system]
+requires = [
+    "setuptools>=61.0",
+    "pytest>=9.0.1",
+    "black>=25.11.0"
+]
+build-backend = "setuptools.build_meta"
