@@ -879,6 +879,7 @@ def students_from_json(path: str) -> List[Student]:
 ### Задание А
 
 ```python
+#Импортируем необходимые модули
 import csv
 from pathlib import Path
 from typing import List, Dict
@@ -887,91 +888,97 @@ from src.lab04.io_txt_csv import ensure_parent_dir, write_csv
 
 
 class Group:
+    """
+    Класс для управления группой студентов с сохранением в CSV файл.
+    Реализует CRUD операции (Create, Read, Update, Delete).
+    """
     def __init__(self, storage_path: str):
         """Инициализация группы студентов"""
-        self.path = Path(storage_path)
+        self.path = Path(storage_path) #Преобразуем строку в объект Path
         self._ensure_storage_exists()
 
     def _ensure_storage_exists(self) -> None:
         """Приватный метод: убеждается, что файл хранилища существует.
         Если нет - создает пустой файл с заголовком"""
-        if not self.path.exists():
-            ensure_parent_dir(self.path)
-            write_csv([], self.path, header=("fio", "birthdate", "group", "gpa"))
+        if not self.path.exists(): #Если файл не существует
+            ensure_parent_dir(self.path) #Создаем родительскую директорию если нужно
+            write_csv([], self.path, header=("fio", "birthdate", "group", "gpa")) #Создаем пустой CSV файл с заголовками столбцов
 
     def _read_all(self) -> List[Dict[str, str]]:
         """Приватный метод: читает все записи из CSV файла"""
-        if not self.path.exists():
-            return []
+        if not self.path.exists(): #Если файл не существует
+            return [] #Возвращаем пустой список
 
-        with self.path.open("r", encoding="utf-8") as f:
+        with self.path.open("r", encoding="utf-8") as f: #Открываем файл для чтения
             reader = csv.DictReader(f)
             return list(reader)
 
     def _write_all(self, rows: List[Dict[str, str]]) -> None:
         """Приватный метод: записывает все записи в CSV файл"""
-        if rows:
-            header = tuple(rows[0].keys())
-            tuple_rows = [tuple(row.values()) for row in rows]
-            write_csv(tuple_rows, self.path, header=header)
-        else:
-            write_csv([], self.path, header=("fio", "birthdate", "group", "gpa"))
+        if rows:  #Если есть данные для записи
+            header = tuple(rows[0].keys()) #Берем ключи из первого словаря как заголовки
+            tuple_rows = [tuple(row.values()) for row in rows] #Преобразуем каждый словарь в кортеж значений
+            write_csv(tuple_rows, self.path, header=header) #Записываем данные в CSV
+        else: #Если данных нет
+            write_csv([], self.path, header=("fio", "birthdate", "group", "gpa")) #Создаем пустой файл с заголовками
 
     def list(self) -> List[Student]:
         """Возвращает список всех студентов в группе как объекты Student"""
-        rows = self._read_all()
-        students = []
+        rows = self._read_all() #Читаем все записи из CSV
+        students = [] #Создаем пустой список для объектов Student
         for row in rows:
             try:
-                row_copy = row.copy()
-                row_copy["gpa"] = float(row_copy["gpa"])
-                student = Student.from_dict(row_copy)
+                row_copy = row.copy() #Создаем копию словаря чтобы не менять оригинал
+                row_copy["gpa"] = float(row_copy["gpa"])  #Преобразуем GPA в число
+                student = Student.from_dict(row_copy) #Создаем объект Student из словаря
                 students.append(student)
             except (ValueError, KeyError) as e:
+                #Если возникла ошибка (неверный формат или отсутствует ключ)
                 print(f"Warning: Skipping invalid record: {row}. Error: {e}")
         return students
 
     def add(self, student: Student) -> None:
         """Добавляет нового студента в группу"""
-        rows = self._read_all()
+        rows = self._read_all() #Читаем текущие данные
 
-        student_dict = student.to_dict()
-        student_dict["gpa"] = str(student_dict["gpa"])
-        rows.append(student_dict)
-        self._write_all(rows)
+        student_dict = student.to_dict() #Преобразуем Student в словарь
+        student_dict["gpa"] = str(student_dict["gpa"]) #GPA храним как строку в CSV
+        rows.append(student_dict) #Добавляем новый словарь в список
+        self._write_all(rows) #Сохраняем все обратно в файл
 
     def find(self, substr: str) -> List[Student]:
         """Ищет студентов по подстроке в имени"""
-        rows = self.list()
+        rows = self.list() #Получаем всех студентов как объекты
+        #Фильтруем: оставляем только тех, у кого подстрока есть в ФИО
         return [r for r in rows if substr.lower() in r.fio.lower()]
 
     def remove(self, fio: str) -> None:
         """Удаляет студента по имени"""
         rows = self._read_all()
-
+        #Фильтруем: оставляем всех, кроме студента с указанным ФИО
         rows = [r for r in rows if r["fio"] != fio]
 
-        self._write_all(rows)
+        self._write_all(rows) #Сохраняем обновленный список
 
     def update(self, fio: str, **fields) -> bool:
         """Обновляет поля студента по имени"""
         rows = self._read_all()
-        updated = False
+        updated = False #Флаг, был ли найден и обновлен студент
 
-        for row in rows:
+        for row in rows: #Ищем студента по ФИО
             if row["fio"] == fio:
-                for key, value in fields.items():
-                    if key in row:
-                        if key == "gpa":
+                for key, value in fields.items(): #Проходим по всем полям для обновления
+                    if key in row: #Если такое поле существует в записи
+                        if key == "gpa": #Для GPA преобразуем в строку
                             row[key] = str(value)
-                        else:
+                        else: #Для остальных полей тоже в строку
                             row[key] = str(value)
-                updated = True
-                break
+                updated = True #Студент найден и обновлен
+                break #Прерываем поиск
 
-        if updated:
-            self._write_all(rows)
-        return updated
+        if updated: #Если студент был обновлен
+            self._write_all(rows) #Сохраняем изменения
+        return updated #Возвращаем результат операции
 
 
 ```
@@ -1038,7 +1045,7 @@ remove_at(idx) — удалить элемент по индексу — O(n)
 
 ### Задание А
 ```python
-from collections import deque
+from collections import deque #двусторонняя очередь из стандартной библиотеки
 from typing import Any
 
 
@@ -1051,23 +1058,25 @@ class Stack:
 
     def push(self, item: Any) -> None:
         """Добавить элемент на вершину стека"""
-        self._data.append(item)
+        self._data.append(item) #Добавляем элемент в конец списка (вершина стека)
 
     def pop(self) -> Any:
         """Снять верхний элемент стека и вернуть его"""
-        if self.is_empty():
+        if self.is_empty(): #Проверяем, не пуст ли стек
             raise IndexError("Невозможно извлечь элемент из пустого стека")
+        #Удаляем и возвращаем последний элемент списка (вершину стека)
         return self._data.pop()
 
     def peek(self) -> Any | None:
         """Вернуть верхний элемент без удаления"""
         if self.is_empty():
             return None
+        #Возвращаем последний элемент без удаления
         return self._data[-1]
 
     def is_empty(self) -> bool:
         """Проверить, пуст ли стек"""
-        return len(self._data) == 0
+        return len(self._data) == 0 #True если список пуст, иначе False
 
     def __len__(self) -> int:
         """Вернуть количество элементов в стеке"""
@@ -1079,35 +1088,39 @@ class Queue:
 
     def __init__(self):
         """Инициализация пустой очереди"""
+        #deque оптимизирован для быстрого добавления/удаления с обоих концов
         self._data: deque[Any] = deque()
 
     def enqueue(self, item: Any) -> None:
         """Добавить элемент в конец очереди"""
+        #Добавляем элемент в правый конец очереди
         self._data.append(item)
 
     def dequeue(self) -> Any:
         """Взять элемент из начала очереди и вернуть его"""
-        if self.is_empty():
+        if self.is_empty(): #Проверяем, не пуста ли очередь
             raise IndexError("Невозможно извлечь элемент из пустой очереди")
+        #Удаляем и возвращаем первый элемент очереди (левый конец)
         return self._data.popleft()
 
     def peek(self) -> Any | None:
         """Вернуть первый элемент без удаления"""
         if self.is_empty():
             return None
+        #Возвращаем первый элемент без удаления
         return self._data[0]
 
     def is_empty(self) -> bool:
         """Проверить, пуста ли очередь"""
-        return len(self._data) == 0
+        return len(self._data) == 0 #True если deque пуст, иначе False
 
     def __len__(self) -> int:
         """Вернуть количество элементов в очереди"""
         return len(self._data)
 
 ```
-![Картинка 1](C:\Users\dasha\Desktop\python_labs\images\lab10\stack.png)
-![Картинка 2](C:\Users\dasha\Desktop\python_labs\images\lab10\queue.png)
+![Картинка 1](./images/lab10/stack.png)
+![Картинка 2](./images/lab10/queue.png)
 
 ### Задание В
 ```python
@@ -1118,45 +1131,47 @@ class Node:
     """Узел односвязного списка."""
 
     def __init__(self, value: Any):
-        self.value = value
-        self.next: "Node" | None = None
+        self.value = value #Данные, которые хранит узел
+        self.next: "Node" | None = None #Ссылка на следующий узел (изначально None)
 
 
 class SinglyLinkedList:
     """Односвязный список."""
 
     def __init__(self):
-        self.head: Node | None = None
-        self.tail: Node | None = None
-        self._size = 0
+        """Инициализация пустого списка."""
+        self.head: Node | None = None #Ссылка на первый узел (голова списка)
+        self.tail: Node | None = None #Ссылка на последний узел (хвост списка)
+        self._size = 0 #Количество элементов в списке
 
     def append(self, value: Any) -> None:
         """Добавить элемент в конец списка за O(1)."""
-        new_node = Node(value)
-        if self.head is None:
-            self.head = new_node
-            self.tail = new_node
-        else:
-            self.tail.next = new_node
-            self.tail = new_node
-        self._size += 1
+        new_node = Node(value) #Создаем новый узел с заданным значением
+        if self.head is None: #Если список пустой
+            self.head = new_node #Новый узел становится головой
+            self.tail = new_node #И хвостом одновременно
+        else:  #Список не пустой:
+            self.tail.next = new_node #Старый хвост ссылается на новый узел
+            self.tail = new_node #Новый узел становится новым хвостом
+        self._size += 1 #Увеличиваем счетчик элементов
 
     def prepend(self, value: Any) -> None:
         """Добавить элемент в начало списка за O(1)."""
-        new_node = Node(value)
-        if self.head is None:
+        new_node = Node(value) #Создаем новый узел
+        if self.head is None: #Если список пустой
             self.head = new_node
             self.tail = new_node
-        else:
-            new_node.next = self.head
-            self.head = new_node
+        else: #Список не пустой:
+            new_node.next = self.head #Новый узел ссылается на старую голову
+            self.head = new_node #Новый узел становится новой головой
         self._size += 1
 
     def insert(self, idx: int, value: Any) -> None:
         """Вставить элемент по индексу idx."""
-        if idx < 0 or idx > self._size:
+        if idx < 0 or idx > self._size: #Проверяем валидность индекса
             raise IndexError("Индекс вне диапазона")
 
+        #Крайние случаи: вставка в начало или конец
         if idx == 0:
             self.prepend(value)
             return
@@ -1165,59 +1180,67 @@ class SinglyLinkedList:
             self.append(value)
             return
 
+        #Общий случай: вставка в середину
         new_node = Node(value)
-        current = self.head
-        for _ in range(idx - 1):
+        current = self.head #Находим узел, который будет перед новым узлом
+        for _ in range(idx - 1): 
             current = current.next
 
-        new_node.next = current.next
-        current.next = new_node
+        #Вставляем новый узел между current и current.next
+        new_node.next = current.next #Новый узел ссылается на следующий за current
+        current.next = new_node #Current ссылается на новый узел
         self._size += 1
 
     def remove_at(self, idx: int) -> None:
         """Удалить элемент по индексу idx."""
-        if idx < 0 or idx >= self._size:
+        if idx < 0 or idx >= self._size: #Проверяем валидность индекса
             raise IndexError("Индекс вне диапазона")
 
-        if idx == 0:
-            self.head = self.head.next
-            if self.head is None:
-                self.tail = None
+        #Удаление первого элемента
+        if idx == 0: 
+            self.head = self.head.next  #Голова теперь второй элемент
+            if self.head is None: #Если список стал пустым
+                self.tail = None #Хвост тоже None
             self._size -= 1
             return
 
-        current = self.head
+        #Удаление не первого элемента
+        #Находим узел, который стоит перед удаляемым
+        current = self.head 
         for _ in range(idx - 1):
             current = current.next
 
-        node_to_remove = current.next
-        current.next = node_to_remove.next
+        node_to_remove = current.next #Узел для удаления
+        current.next = node_to_remove.next #Пропускаем удаляемый узел
 
-        if node_to_remove == self.tail:
+        if node_to_remove == self.tail: #Если удалили хвост, обновляем указатель на хвост
             self.tail = current
 
         self._size -= 1
 
     def remove(self, value: Any) -> None:
         """Удалить первое вхождение значения value."""
-        if self.head is None:
+        if self.head is None: #Если список пустой
             return
 
-        if self.head.value == value:
+        if self.head.value == value:  #Удаление из головы (первого элемента)
             self.head = self.head.next
-            if self.head is None:
+            if self.head is None: #Если список стал пустым
                 self.tail = None
             self._size -= 1
             return
 
+        #Поиск узла, предшествующего удаляемому
         current = self.head
+        #Ищем узел, у которого следующий содержит нужное значение
         while current.next is not None and current.next.value != value:
             current = current.next
-
+        #Если нашли значение для удаления
         if current.next is not None:
             node_to_remove = current.next
+            #Пропускаем удаляемый узел
             current.next = node_to_remove.next
-
+            #Если удалили хвост
             if node_to_remove == self.tail:
                 self.tail = current
 
@@ -1227,8 +1250,8 @@ class SinglyLinkedList:
         """Возвращает итератор по значениям в списке."""
         current = self.head
         while current is not None:
-            yield current.value
-            current = current.next
+            yield current.value #Возвращаем значение текущего узла
+            current = current.next  #Переходим к следующему узлу
 
     def __len__(self) -> int:
         """Возвращает количество элементов."""
@@ -1240,4 +1263,4 @@ class SinglyLinkedList:
         return f"SinglyLinkedList({values})"
 
 ```
-![Картинка 3](C:\Users\dasha\Desktop\python_labs\images\lab10\list.png)
+![Картинка 3](./images/lab10/list.png)
