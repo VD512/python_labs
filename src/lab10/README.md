@@ -258,4 +258,4 @@ class SinglyLinkedList:
         return f"SinglyLinkedList({values})"
 
 ```
-![Картинка 3](C:\Users\dasha\Desktop\python_labs\images\lab10\list.png)
+![Картинка 3](images/lab10/list.png)
