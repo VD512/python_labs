@@ -124,8 +124,8 @@ class Queue:
         return len(self._data)
 
 ```
-![Картинка 1](./images/lab10/stack.png)
-![Картинка 2](./images/lab10/queue.png)
+![Картинка 1](C:\Users\dasha\Desktop\python_labs\images\lab10\stack.png)
+![Картинка 2](C:\Users\dasha\Desktop\python_labs\images\lab10\queue.png)
 
 ### Задание В
 ```python
@@ -258,4 +258,4 @@ class SinglyLinkedList:
         return f"SinglyLinkedList({values})"
 
 ```
-![Картинка 3](./images/lab10/list.png)
+![Картинка 3](C:\Users\dasha\Desktop\python_labs\images\lab10\list.png)
